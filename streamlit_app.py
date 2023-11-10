@@ -2,75 +2,91 @@ import streamlit as st
 import random
 import time
 
-# Lista de nombres de porteros iniciales
-nombres_iniciales = {
-    "MARTIN BARREIROS": False,
-    "DAVID": False,
-    "ALEX": False,
-    "ARIANA": False,
-    "ISMAEL": False,
-    "MARTIN DOSIL": False,
-    "HUGO": False,
-    "RODRI": False,
-    "MATEO": False,
-    "ANXO": False,
-    "VICTOR": False
-}
-
 # Configuración de página
 st.set_page_config(
     page_title="Porteiro Miudos",
     page_icon="⚽",
-    layout="wide"  # Asegura que los elementos se muestren en una sola columna
+    layout="wide"
 )
 
-# Título de la aplicación
+# Inicializar el estado de la sesión con todos los nombres seleccionados
+if 'nombres_iniciales' not in st.session_state:
+    st.session_state['nombres_iniciales'] = {
+        "MARTIN BARREIROS": True,
+        "DAVID": True,
+        "ALEX": True,
+        "ARIANA": True,
+        "ISMAEL": True,
+        "MARTIN DOSIL": True,
+        "HUGO": True,
+        "RODRI": True,
+        "MATEO": True,
+        "ANXO": True,
+        "VICTOR": True
+    }
+
+# Título de la aplicación y imagen del escudo del club
 st.title("A ver a quen lle toca quedar")
+st.image("escudo.jfif", width=200)
 
-# Imagen del escudo del club
-st.image("escudo.jfif", width=200)  # Reemplaza la ruta de la imagen
+# Expander para añadir o eliminar nombres, y reemplazar equipo
+with st.expander("Gestionar nombres"):
+    # Sección para agregar un nuevo nombre
+    nuevo_nombre = st.text_input("Agregar un nuevo nombre de portero:")
 
-# Entrada de texto para agregar un nuevo nombre
-nuevo_nombre = st.text_input("Agregar un nuevo nombre de portero:")
+    def agregar_nombre():
+        nombre = nuevo_nombre.strip()
+        if nombre and nombre not in st.session_state.nombres_iniciales:
+            st.session_state.nombres_iniciales[nombre] = True
+            st.success(f"Se agregó '{nombre}' a la lista de porteros.")
+        elif nombre:
+            st.error("El nombre ya está en la lista.")
 
-# Función para agregar un nombre a la lista inicial
-def agregar_nombre(nombre):
-    if nombre.strip() != "":
-        nombres_iniciales[nombre] = False
-        st.success(f"Se agregó '{nombre}' a la lista de porteros.")
+    if st.button("Agregar Nombre"):
+        agregar_nombre()
 
-# Botón para agregar un nombre a la lista
-if st.button("Agregar Nombre"):
-    agregar_nombre(nuevo_nombre)
-    nuevo_nombre = ""
+    # Sección para eliminar un nombre (ordenada)
+    if st.session_state.nombres_iniciales:
+        nombres_ordenados_para_eliminar = sorted(st.session_state.nombres_iniciales)
+        nombre_a_eliminar = st.selectbox("Selecciona un nombre para eliminar:", nombres_ordenados_para_eliminar)
 
-# Función para seleccionar un portero aleatorio
+        def eliminar_nombre():
+            del st.session_state.nombres_iniciales[nombre_a_eliminar]
+            st.success(f"Se eliminó '{nombre_a_eliminar}' de la lista de porteros.")
+
+        if st.button("Eliminar Nombre"):
+            eliminar_nombre()
+
+    # Sección para reemplazar el equipo actual
+    nuevo_equipo = st.text_area("Introduce los nombres del nuevo equipo, separados por comas:")
+
+    def reemplazar_equipo():
+        nombres_nuevos = [nombre.strip() for nombre in nuevo_equipo.split(',') if nombre.strip()]
+        st.session_state.nombres_iniciales = {nombre: True for nombre in nombres_nuevos}
+        st.success("El equipo ha sido reemplazado exitosamente.")
+
+    if st.button("Reemplazar Equipo"):
+        reemplazar_equipo()
+
+# Seleccionar portero aleatorio
 def seleccionar_portero_aleatorio():
     with st.spinner("Seleccionando portero aleatorio..."):
-        time.sleep(2)  # Simula un proceso que tarda 2 segundos
+        time.sleep(2)
+        nombres_seleccionados = [nombre for nombre, seleccionado in st.session_state.nombres_iniciales.items() if seleccionado]
         if nombres_seleccionados:
             portero_aleatorio = random.choice(nombres_seleccionados)
             st.success(f"Tocoulle a : {portero_aleatorio}")
         else:
             st.warning("Por favor, selecciona al menos un portero para participar en el sorteo.")
 
-# Ordena los nombres alfabéticamente
-nombres_iniciales = {nombre: seleccionado for nombre, seleccionado in sorted(nombres_iniciales.items())}
+# Ordenar y mostrar checkboxes
+nombres_ordenados = sorted(st.session_state.nombres_iniciales.items())
+for nombre, seleccionado in nombres_ordenados:
+    st.session_state.nombres_iniciales[nombre] = st.checkbox(nombre, seleccionado)
 
-# Actualiza la selección de nombres usando botones y permite deseleccionar
-for nombre in nombres_iniciales:
-    nombres_iniciales[nombre] = st.checkbox(nombre, nombres_iniciales[nombre])
-
-# Filtra los nombres seleccionados para el sorteo
-nombres_seleccionados = [nombre for nombre, seleccionado in nombres_iniciales.items() if seleccionado]
-
-# Botón para seleccionar un portero aleatorio
 if st.button("Seleccionar Portero Aleatorio"):
     seleccionar_portero_aleatorio()
 
-# Icono de guantes de portero
 st.write("⚽️ Diviértete seleccionando un portero al azar!")
-
-# Efecto visual divertido
 if st.button("¡Fiesta de la victoria!"):
     st.balloons()
