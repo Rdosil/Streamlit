@@ -32,13 +32,13 @@ st.image("escudo.jfif", width=200)
 # Expander para añadir o eliminar nombres, y reemplazar equipo
 with st.expander("Gestionar nombres"):
     # Sección para agregar un nuevo nombre
-    nuevo_nombre = st.text_input("Agregar un nuevo nombre de portero:")
+    nuevo_nombre = st.text_input("Agregar un nuevo nombre de porteiro:")
 
     def agregar_nombre():
         nombre = nuevo_nombre.strip()
         if nombre and nombre not in st.session_state.nombres_iniciales:
             st.session_state.nombres_iniciales[nombre] = True
-            st.success(f"Se agregó '{nombre}' a la lista de porteros.")
+            st.success(f"Se agregó '{nombre}' a la lista de porteiros.")
         elif nombre:
             st.error("El nombre ya está en la lista.")
 
@@ -52,7 +52,7 @@ with st.expander("Gestionar nombres"):
 
         def eliminar_nombre():
             del st.session_state.nombres_iniciales[nombre_a_eliminar]
-            st.success(f"Se eliminó '{nombre_a_eliminar}' de la lista de porteros.")
+            st.success(f"Se eliminó '{nombre_a_eliminar}' de la lista de porteiros.")
 
         if st.button("Eliminar Nombre"):
             eliminar_nombre()
@@ -68,25 +68,24 @@ with st.expander("Gestionar nombres"):
     if st.button("Reemplazar Equipo"):
         reemplazar_equipo()
 
-# Seleccionar portero aleatorio
-def seleccionar_portero_aleatorio():
-    with st.spinner("Seleccionando portero aleatorio..."):
+# Seleccionar porteiro aleatorio
+def seleccionar_porteiro_aleatorio():
+    with st.spinner("Seleccionando porteiro aleatorio..."):
         time.sleep(2)
         nombres_seleccionados = [nombre for nombre, seleccionado in st.session_state.nombres_iniciales.items() if seleccionado]
         if nombres_seleccionados:
-            portero_aleatorio = random.choice(nombres_seleccionados)
-            st.success(f"Tocoulle a : {portero_aleatorio}")
+            porteiro_aleatorio = random.choice(nombres_seleccionados)
+            st.success(f"Tocoulle a : {porteiro_aleatorio}")
         else:
-            st.warning("Por favor, selecciona al menos un portero para participar en el sorteo.")
+            st.warning("Por favor, selecciona un porteiro polo menos.")
 
 # Ordenar y mostrar checkboxes
 nombres_ordenados = sorted(st.session_state.nombres_iniciales.items())
 for nombre, seleccionado in nombres_ordenados:
     st.session_state.nombres_iniciales[nombre] = st.checkbox(nombre, seleccionado)
 
-if st.button("Seleccionar Portero Aleatorio"):
-    seleccionar_portero_aleatorio()
-
-st.write("⚽️ Diviértete seleccionando un portero al azar!")
-if st.button("¡Fiesta de la victoria!"):
+st.write("⚽️ selecciona un porteiro ó azar!")
+if st.button("Sortea"):
+    seleccionar_porteiro_aleatorio()
+if st.button("¡Por si ganamos hoxe!"):
     st.balloons()
